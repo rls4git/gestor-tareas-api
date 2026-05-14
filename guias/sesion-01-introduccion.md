@@ -36,19 +36,19 @@ Antes de que lleguen los alumnos, tener abierto y listo:
 
 | Bloque | Duración | Hora de inicio |
 |---|---|---|
-| Apertura y presentación | 10 min | 00:00 |
-| B1 — Qué es Devin | 35 min | 00:10 |
-| Caso real: Gumroad | 5 min | 00:45 |
-| B2 — Arquitectura interna | 25 min | 00:50 |
-| Demo en vivo | 20 min | 01:15 |
-| **DESCANSO** | **20 min** | **01:35** |
-| Actividad técnica | 35 min | 01:55 |
-| Puesta en común | 10 min | 02:30 |
-| Cierre y preview sesión 2 | 5 min | 02:40 |
+| Apertura y presentación | 10 min | 15:30 |
+| B1 — Qué es Devin | 35 min | 15:40 |
+| Caso real: Gumroad | 5 min | 16:15 |
+| B2 — Arquitectura interna | 25 min | 16:20 |
+| Demo en vivo | 20 min | 16:45 |
+| **DESCANSO** | **20 min** | **17:05** |
+| Actividad técnica | 35 min | 17:25 |
+| Puesta en común | 10 min | 18:00 |
+| Cierre y preview sesión 2 | 5 min | 18:10 |
 
 ---
 
-## Apertura y presentación `[10 min — 00:00]`
+## Apertura y presentación `[10 min — 15:30]`
 
 *Mientras los alumnos se conectan o se sientan, tener en pantalla el título de la sesión.*
 
@@ -56,19 +56,17 @@ Buenos días a todos. Voy a empezar puntual porque tenemos mucho contenido.
 
 Esta sesión es la primera de un curso sobre Devin AI, y el objetivo no es que salgáis convencidos de que Devin es la herramienta definitiva, sino que salgáis con una imagen realista: qué hace bien, qué hace mal, cómo encaja en un equipo de desarrollo real, y qué tenéis que cambiar en vuestra forma de trabajar para sacarle partido.
 
-Vamos a trabajar sobre un repositorio concreto que ya conocéis o que vais a conocer hoy: una API de gestión de tareas en Python. No importa si no sois desarrolladores Python, porque lo que importa es la interacción con Devin, no el lenguaje.
+Vamos a trabajar sobre un repositorio concreto que vais a conocer hoy: una API de gestión de tareas en Python. No importa si no sois desarrolladores Python, porque lo que importa es la interacción con Devin, no el lenguaje.
 
 La sesión tiene dos mitades separadas por un descanso. En la primera mitad: teoría y demo en vivo. En la segunda: vosotros mismos con Devin.
 
-Antes de empezar, necesito que cada uno verifique que tiene cuenta en devin.ai. Levantad la mano si no tenéis acceso todavía.
-
-*Resolver accesos pendientes. Máximo 3 minutos.*
+*Nota para el formador: los accesos a devin.ai deben verificarse el día anterior a la sesión. Contactar con los participantes con 24 horas de antelación para confirmar que todos tienen cuenta activa y pueden iniciar sesión. No dedicar tiempo de sesión a resolver accesos.*
 
 Perfecto. Empezamos.
 
 ---
 
-## B1 — Qué es Devin, capacidades y limitaciones `[35 min — 00:10]`
+## B1 — Qué es Devin, capacidades y limitaciones `[35 min — 15:40]`
 
 *Pantalla: VS Code con el repo abierto, minimizado. No mostrar Devin todavía.*
 
@@ -96,7 +94,7 @@ Devin tiene cuatro capacidades que lo hacen útil en un contexto empresarial:
 
 **Segunda: ejecutar y depurar.** Devin tiene acceso a una terminal real. Puede instalar paquetes, ejecutar tests, leer la salida de error, modificar el código, volver a ejecutar. Este ciclo lo hace solo, sin que yo tenga que copiar y pegar errores en un chat.
 
-**Third: trabajar con contexto prolongado.** Mantiene el estado de la tarea a lo largo de docenas de pasos. Si en el paso 12 falla algo relacionado con una decisión tomada en el paso 3, puede retroceder y reconsiderar. Esto es muy distinto a un chat donde cada mensaje empieza casi desde cero.
+**Tercera: trabajar con contexto prolongado.** Mantiene el estado de la tarea a lo largo de docenas de pasos. Si en el paso 12 falla algo relacionado con una decisión tomada en el paso 3, puede retroceder y reconsiderar. Esto es muy distinto a un chat donde cada mensaje empieza casi desde cero.
 
 **Cuarta: generar entregables completos.** No solo escribe código. Puede escribir los tests, actualizar la documentación, crear el PR con una descripción coherente y ejecutar la suite completa antes de entregarla.
 
@@ -132,7 +130,7 @@ Los casos de uso donde Devin aporta más valor en entornos empresariales se agru
 
 ---
 
-## Caso real intercalado — Gumroad `[5 min — 00:45]`
+## Caso real intercalado — Gumroad `[5 min — 16:15]`
 
 *Pantalla: mostrar el post de Sahil Lavingia o la captura preparada.*
 
@@ -152,7 +150,7 @@ Estos tres casos tienen algo en común: **ninguno eliminó desarrolladores, todo
 
 ---
 
-## B2 — Arquitectura interna de Devin `[25 min — 00:50]`
+## B2 — Arquitectura interna de Devin `[25 min — 16:20]`
 
 *Pantalla: abrir un documento en blanco o pizarra para dibujar mientras se habla. El diagrama ASCII de abajo sirve de referencia.*
 
@@ -237,7 +235,7 @@ Hay un límite, claro. Si después de muchas iteraciones no encuentra la soluci�
 
 ---
 
-## Demo en vivo `[20 min — 01:15]`
+## Demo en vivo `[20 min — 16:45]`
 
 *Pantalla: cambiar a navegador. Tener abierto el PR #1 del repo `gestor-tareas-api` en GitHub.*
 
@@ -326,15 +324,15 @@ En un flujo real, ahora haría code review de esta propuesta y si es correcta, d
 
 ---
 
-## DESCANSO `[20 min — 01:35]`
+## DESCANSO `[20 min — 17:05]`
 
 *Anunciar el descanso claramente. Decir la hora exacta de regreso.*
 
-Hacemos 20 minutos de descanso. Volvemos a las [hora exacta]. Cuando regresemos, vosotros vais a hacer exactamente lo que acabo de hacer yo, pero con vuestro propio prompt.
+Hacemos 20 minutos de descanso. Volvemos a las 17:25. Cuando regresemos, vosotros vais a hacer exactamente lo que acabo de hacer yo, pero con vuestro propio prompt.
 
 ---
 
-## Actividad técnica `[35 min — 01:55]`
+## Actividad técnica `[35 min — 17:25]`
 
 ### Enunciado
 
@@ -402,7 +400,7 @@ El escenario de fallo concreto es: crear una tarea, cambiarla a `done`, y luego 
 
 ---
 
-## Puesta en común `[10 min — 02:30]`
+## Puesta en común `[10 min — 18:00]`
 
 *Volver a pantalla compartida. Lanzar las preguntas una a una, no todas a la vez.*
 
@@ -426,7 +424,7 @@ Vamos a poner en común lo que habéis encontrado. Quiero escuchar respuestas co
 
 ---
 
-## Cierre y preview de la sesión 2 `[5 min — 02:40]`
+## Cierre y preview de la sesión 2 `[5 min — 18:10]`
 
 *Pantalla: volver al repo, rama `main`.*
 
@@ -440,6 +438,6 @@ Lo que hemos visto hoy se resume en tres ideas que quiero que os llevéis.
 
 **Tercera:** Devin comete errores. La revisión humana no es opcional. Lo que cambia es dónde enfocáis esa revisión: en el criterio, la arquitectura, las decisiones de negocio, no en la mecánica de escritura.
 
-En la **sesión 2** vamos a trabajar con los otros escenarios del repositorio: código duplicado, tests incompletos, endpoint con lógica incorrecta. Vais a ver cómo Devin aborda refactoring real y cómo se comporta cuando los tests que existen no cubren los casos de error. Traed el repo clonado y la cuenta de Devin activa.
+En la **sesión 2** entramos en los bloques B3 y B4: montaréis un entorno sandbox simplificado donde podréis experimentar con Devin de forma segura, y daréis vuestros primeros pasos reales — conectar vuestro propio repositorio, definir una tarea concreta y ejecutarla con Devin de principio a fin. Traed el repo clonado y la cuenta de Devin activa.
 
 Hasta la próxima.
