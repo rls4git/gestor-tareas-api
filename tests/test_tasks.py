@@ -55,3 +55,6 @@ def test_list_tasks_by_status_returns_matching_tasks():
 def test_list_tasks_by_status_invalid_returns_422():
     response = client.get("/tasks/status/invalid")
     assert response.status_code == 422
+    data = response.json()
+    assert "detail" in data
+    assert data["detail"][0]["loc"] == ["path", "task_status"]
