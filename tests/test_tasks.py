@@ -36,3 +36,14 @@ def teardown_module():
 def test_create_task_title_too_short_returns_422():
     response = client.post("/tasks/", json={"title": "ab"})
     assert response.status_code == 422
+
+
+def test_update_done_task_returns_409():
+    response = client.post("/tasks/", json={"title": "Tarea para completar"})
+    assert response.status_code == 201
+    task_id = response.json()["id"]
+
+    client.patch(f"/tasks/{task_id}", json={"status": "done"})
+
+    response = client.patch(f"/tasks/{task_id}", json={"title": "Nuevo título"})
+    assert response.status_code == 409
