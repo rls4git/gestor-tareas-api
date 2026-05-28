@@ -16,7 +16,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 # Devuelve la lista completa de tareas almacenadas
 @router.get("/", response_model=List[TaskResponse])
 def list_tasks(db: Session = Depends(get_db)):
-    return []
+    return db.query(Task).all()
 
 
 # Devuelve una tarea por su identificador; 404 si no existe
