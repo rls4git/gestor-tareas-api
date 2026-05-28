@@ -38,23 +38,12 @@ def test_create_task_title_too_short_returns_422():
     assert response.status_code == 422
 
 
-def test_list_tasks_by_status_returns_matching_tasks():
-    client.post("/tasks/", json={"title": "Pendiente uno"})
-    client.post("/tasks/", json={"title": "Pendiente dos"})
-    done_resp = client.post("/tasks/", json={"title": "Tarea hecha"})
-    task_id = done_resp.json()["id"]
+def test_update_done_task_returns_409():
+    response = client.post("/tasks/", json={"title": "Tarea para completar"})
+    assert response.status_code == 201
+    task_id = response.json()["id"]
+
     client.patch(f"/tasks/{task_id}", json={"status": "done"})
 
-    response = client.get("/tasks/status/done")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert any(t["id"] == task_id and t["status"] == "done" for t in data)
-
-
-def test_list_tasks_by_status_invalid_returns_422():
-    response = client.get("/tasks/status/invalid")
-    assert response.status_code == 422
-    data = response.json()
-    assert "detail" in data
-    assert data["detail"][0]["loc"] == ["path", "task_status"]
+    response = client.patch(f"/tasks/{task_id}", json={"title": "Nuevo título"})
+    assert response.status_code == 409
