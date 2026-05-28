@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from aplicacion.base_de_datos import get_db
 from aplicacion.esquemas import TaskCreate, TaskResponse, TaskUpdate
-from aplicacion.modelos import Task
+from aplicacion.modelos import Task, TaskStatus
 
 # Router con prefijo /tasks; agrupa todos los endpoints de tareas
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -27,7 +27,7 @@ def get_task_or_404(task_id: int, db: Session = Depends(get_db)) -> Task:
 # Devuelve la lista completa de tareas almacenadas
 @router.get("/", response_model=List[TaskResponse])
 def list_tasks(db: Session = Depends(get_db)):
-    return db.query(Task).all()
+    return []
 
 
 # Devuelve una tarea por su identificador; 404 si no existe
@@ -37,8 +37,14 @@ def get_task(task: Task = Depends(get_task_or_404)):
 
 
 # Crea una nueva tarea y devuelve el recurso creado con código 201
+# Bug: no valida que el título tenga al menos 3 caracteres antes de persistir
 @router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
+    if len(payload.title) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="El título debe tener al menos 3 caracteres",
+        )
     task = Task(**payload.model_dump())
     db.add(task)
     db.commit()
@@ -48,11 +54,19 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
 
 # Actualiza parcialmente una tarea; solo modifica los campos enviados en el cuerpo
 @router.patch("/{task_id}", response_model=TaskResponse)
-def update_task(
-    payload: TaskUpdate,
-    task: Task = Depends(get_task_or_404),
-    db: Session = Depends(get_db),
-):
+def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+
+    # Bug: comprueba el estado del payload en lugar del estado actual de la tarea;
+    # una tarea ya completada puede modificarse sin ningún error
+    if payload.status == TaskStatus.done:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se puede establecer el estado a done directamente",
+        )
+
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(task, field, value)
     db.commit()
