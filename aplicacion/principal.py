@@ -18,5 +18,4 @@ async def lifespan(app: FastAPI):
 # Instancia principal de la aplicación
 app = FastAPI(title="API de Gestión de Tareas", lifespan=lifespan)
 
-# Registro del router de tareas bajo el prefijo /tasks
 app.include_router(tareas.router)
