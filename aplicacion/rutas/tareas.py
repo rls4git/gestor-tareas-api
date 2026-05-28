@@ -45,7 +45,7 @@ def list_tasks(db: Session = Depends(get_db)):
     Returns:
         List[TaskResponse]: Lista con todas las tareas existentes.
     """
-    return []
+    return db.query(Task).all()
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
@@ -124,6 +124,20 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(task)
     return task
+
+
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+def delete_all_tasks(db: Session = Depends(get_db)):
+    """Elimina todas las tareas de la base de datos.
+
+    Args:
+        db (Session): Sesión de base de datos inyectada por FastAPI.
+
+    Returns:
+        None: Respuesta vacía con código 204.
+    """
+    db.query(Task).delete()
+    db.commit()
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)

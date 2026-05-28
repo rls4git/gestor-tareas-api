@@ -47,3 +47,36 @@ def test_update_done_task_returns_409():
 
     response = client.patch(f"/tasks/{task_id}", json={"title": "Nuevo título"})
     assert response.status_code == 409
+
+
+def test_delete_all_tasks_clears_database():
+    """Verifica que DELETE /tasks/ elimina todas las tareas."""
+    # Crear varias tareas
+    client.post("/tasks/", json={"title": "Tarea uno"})
+    client.post("/tasks/", json={"title": "Tarea dos"})
+    client.post("/tasks/", json={"title": "Tarea tres"})
+
+    # Confirmar que existen tareas
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+
+    # Eliminar todas
+    response = client.delete("/tasks/")
+    assert response.status_code == 204
+
+    # Verificar que la lista está vacía
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_delete_all_tasks_on_empty_database_returns_204():
+    """Verifica que DELETE /tasks/ devuelve 204 incluso sin tareas."""
+    # Asegurar que no hay tareas (ya se eliminaron en el test anterior)
+    response = client.delete("/tasks/")
+    assert response.status_code == 204
+
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert response.json() == []
