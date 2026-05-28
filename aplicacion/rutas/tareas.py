@@ -113,6 +113,12 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
+    if payload.title is not None and len(payload.title) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="El título debe tener al menos 3 caracteres",
+        )
+
     if payload.status == TaskStatus.done:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
