@@ -80,3 +80,52 @@ def test_delete_all_tasks_on_empty_database_returns_204():
     response = client.get("/tasks/")
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_create_task_with_categoria():
+    """Verifica que se puede crear una tarea con categoría."""
+    response = client.post(
+        "/tasks/",
+        json={"title": "Tarea con categoría", "categoria": "trabajo"}
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["categoria"] == "trabajo"
+
+
+def test_create_task_without_categoria():
+    """Verifica que se puede crear una tarea sin categoría (campo opcional)."""
+    response = client.post("/tasks/", json={"title": "Tarea sin categoría"})
+    assert response.status_code == 201
+    data = response.json()
+    assert data["categoria"] is None
+
+
+def test_update_task_categoria():
+    """Verifica que se puede actualizar la categoría de una tarea."""
+    response = client.post("/tasks/", json={"title": "Tarea para actualizar"})
+    assert response.status_code == 201
+    task_id = response.json()["id"]
+
+    response = client.patch(
+        f"/tasks/{task_id}",
+        json={"categoria": "personal"}
+    )
+    assert response.status_code == 200
+    assert response.json()["categoria"] == "personal"
+
+
+def test_categoria_in_task_response():
+    """Verifica que la categoría aparece en la respuesta de obtener tarea."""
+    response = client.post(
+        "/tasks/",
+        json={"title": "Tarea respuesta", "categoria": "urgente"}
+    )
+    assert response.status_code == 201
+    task_id = response.json()["id"]
+
+    response = client.get(f"/tasks/{task_id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert "categoria" in data
+    assert data["categoria"] == "urgente"
