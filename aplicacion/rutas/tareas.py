@@ -10,23 +10,16 @@ from aplicacion.modelos import Task, TaskStatus
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
-def get_task_or_404(task_id: int, db: Session = Depends(get_db)) -> Task:
-    """Obtiene una tarea por id o lanza 404.
+@router.get("/", response_model=List[TaskResponse])
+def list_tasks(db: Session = Depends(get_db)):
+    """Obtiene la lista completa de tareas almacenadas."""
+    return db.query(Task).all()
 
-    Dependencia compartida que centraliza la validación del identificador
-    y la búsqueda en base de datos.
 
-    Args:
-        task_id (int): Identificador numérico de la tarea.
-        db (Session): Sesión de base de datos inyectada por FastAPI.
-
-    Returns:
-        Task: La instancia ORM de la tarea encontrada.
-
-    Raises:
-        HTTPException: 400 si el id es menor o igual a cero.
-        HTTPException: 404 si no existe una tarea con el id indicado.
-    """
+@router.get("/{task_id}", response_model=TaskResponse)
+def get_task(task_id: int, db: Session = Depends(get_db)):
+    """Obtiene una tarea por su identificador."""
+    # Buscar tarea por id y devolver 404 si no existe
     if task_id <= 0:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid task id")
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -35,51 +28,9 @@ def get_task_or_404(task_id: int, db: Session = Depends(get_db)) -> Task:
     return task
 
 
-@router.get("/", response_model=List[TaskResponse])
-def list_tasks(db: Session = Depends(get_db)):
-    """Obtiene la lista completa de tareas almacenadas.
-
-    Args:
-        db (Session): Sesión de base de datos inyectada por FastAPI.
-
-    Returns:
-        List[TaskResponse]: Lista con todas las tareas existentes.
-    """
-    return db.query(Task).all()
-
-
-@router.get("/{task_id}", response_model=TaskResponse)
-def get_task(task: Task = Depends(get_task_or_404)):
-    """Obtiene una tarea por su identificador.
-
-    Args:
-        task (Task): Tarea resuelta por la dependencia get_task_or_404.
-
-    Returns:
-        TaskResponse: La tarea correspondiente al identificador.
-
-    Raises:
-        HTTPException: 400 si el id es inválido.
-        HTTPException: 404 si no existe una tarea con el id indicado.
-    """
-    return task
-
-
 @router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
-    """Crea una nueva tarea y la persiste en la base de datos.
-
-    Args:
-        payload (TaskCreate): Datos de la tarea a crear, incluyendo
-            prioridad opcional (low, medium, high; por defecto medium).
-        db (Session): Sesión de base de datos inyectada por FastAPI.
-
-    Returns:
-        TaskResponse: La tarea recién creada con su id, prioridad y fecha asignados.
-
-    Raises:
-        HTTPException: 422 si el título tiene menos de 3 caracteres.
-    """
+    """Crea una nueva tarea y la persiste en la base de datos."""
     if len(payload.title) < 3:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -94,27 +45,13 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
 
 @router.patch("/{task_id}", response_model=TaskResponse)
 def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)):
-    """Actualiza parcialmente una tarea existente.
-
-    Solo modifica los campos incluidos en el cuerpo de la petición,
-    incluyendo la prioridad (low, medium, high) si se proporciona.
-
-    Args:
-        task_id (int): Identificador único de la tarea a actualizar.
-        payload (TaskUpdate): Campos a modificar (título, descripción,
-            estado, prioridad).
-        db (Session): Sesión de base de datos inyectada por FastAPI.
-
-    Returns:
-        TaskResponse: La tarea con los campos actualizados.
-
-    Raises:
-        HTTPException: 404 si no existe una tarea con el id indicado.
-        HTTPException: 400 si se intenta establecer el estado a done.
-    """
+    """Actualiza parcialmente una tarea existente."""
+    # Buscar tarea por id y devolver 404 si no existe
+    if task_id <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid task id")
     task = db.query(Task).filter(Task.id == task_id).first()
-    if not task:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    if task is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tarea no encontrada")
 
     if payload.title is not None and len(payload.title) < 3:
         raise HTTPException(
@@ -137,35 +74,19 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all_tasks(db: Session = Depends(get_db)):
-    """Elimina todas las tareas de la base de datos.
-
-    Args:
-        db (Session): Sesión de base de datos inyectada por FastAPI.
-
-    Returns:
-        None: Respuesta vacía con código 204.
-    """
+    """Elimina todas las tareas de la base de datos."""
     db.query(Task).delete()
     db.commit()
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_task(
-    task: Task = Depends(get_task_or_404),
-    db: Session = Depends(get_db),
-):
-    """Elimina una tarea de la base de datos.
-
-    Args:
-        task (Task): Tarea resuelta por la dependencia get_task_or_404.
-        db (Session): Sesión de base de datos inyectada por FastAPI.
-
-    Returns:
-        None: Respuesta vacía con código 204.
-
-    Raises:
-        HTTPException: 400 si el id es inválido.
-        HTTPException: 404 si no existe una tarea con el id indicado.
-    """
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    """Elimina una tarea de la base de datos."""
+    # Buscar tarea por id y devolver 404 si no existe
+    if task_id <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid task id")
+    task = db.query(Task).filter(Task.id == task_id).first()
+    if task is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tarea no encontrada")
     db.delete(task)
     db.commit()
