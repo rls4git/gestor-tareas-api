@@ -140,3 +140,74 @@ def test_get_task_includes_priority():
     response = client.get(f"/tasks/{task_id}")
     assert response.status_code == 200
     assert response.json()["priority"] == "low"
+
+
+# --- Tests de cobertura para get_task_or_404, update_task y delete_task ---
+
+
+def test_get_task_with_invalid_id_returns_400():
+    """Verifica que GET /tasks/{id} con id <= 0 devuelve 400."""
+    for invalid_id in (0, -1):
+        response = client.get(f"/tasks/{invalid_id}")
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Invalid task id"
+
+
+def test_get_task_not_found_returns_404():
+    """Verifica que GET /tasks/{id} con id inexistente devuelve 404."""
+    response = client.get("/tasks/99999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Tarea no encontrada"
+
+
+def test_update_nonexistent_task_returns_404():
+    """Verifica que PATCH /tasks/{id} con id inexistente devuelve 404."""
+    response = client.patch(
+        "/tasks/99999", json={"title": "Titulo nuevo"}
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Task not found"
+
+
+def test_update_task_title_too_short_returns_422():
+    """Verifica que PATCH /tasks/{id} con título corto devuelve 422."""
+    create_resp = client.post(
+        "/tasks/", json={"title": "Tarea para titulo corto"}
+    )
+    task_id = create_resp.json()["id"]
+
+    response = client.patch(
+        f"/tasks/{task_id}", json={"title": "ab"}
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"] == (
+        "El título debe tener al menos 3 caracteres"
+    )
+
+
+def test_delete_single_task():
+    """Verifica que DELETE /tasks/{id} elimina la tarea y devuelve 204."""
+    create_resp = client.post(
+        "/tasks/", json={"title": "Tarea para eliminar"}
+    )
+    task_id = create_resp.json()["id"]
+
+    response = client.delete(f"/tasks/{task_id}")
+    assert response.status_code == 204
+
+    response = client.get(f"/tasks/{task_id}")
+    assert response.status_code == 404
+
+
+def test_delete_task_with_invalid_id_returns_400():
+    """Verifica que DELETE /tasks/0 devuelve 400."""
+    response = client.delete("/tasks/0")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid task id"
+
+
+def test_delete_task_not_found_returns_404():
+    """Verifica que DELETE /tasks/99999 devuelve 404."""
+    response = client.delete("/tasks/99999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Tarea no encontrada"
