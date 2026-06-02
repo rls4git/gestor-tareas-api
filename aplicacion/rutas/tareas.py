@@ -70,11 +70,12 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
     """Crea una nueva tarea y la persiste en la base de datos.
 
     Args:
-        payload (TaskCreate): Datos de la tarea a crear.
+        payload (TaskCreate): Datos de la tarea a crear, incluyendo
+            prioridad opcional (low, medium, high; por defecto medium).
         db (Session): Sesión de base de datos inyectada por FastAPI.
 
     Returns:
-        TaskResponse: La tarea recién creada con su id y fecha asignados.
+        TaskResponse: La tarea recién creada con su id, prioridad y fecha asignados.
 
     Raises:
         HTTPException: 422 si el título tiene menos de 3 caracteres.
@@ -95,11 +96,13 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
 def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)):
     """Actualiza parcialmente una tarea existente.
 
-    Solo modifica los campos incluidos en el cuerpo de la petición.
+    Solo modifica los campos incluidos en el cuerpo de la petición,
+    incluyendo la prioridad (low, medium, high) si se proporciona.
 
     Args:
         task_id (int): Identificador único de la tarea a actualizar.
-        payload (TaskUpdate): Campos a modificar.
+        payload (TaskUpdate): Campos a modificar (título, descripción,
+            estado, prioridad).
         db (Session): Sesión de base de datos inyectada por FastAPI.
 
     Returns:
