@@ -9,6 +9,7 @@ from aplicacion.modelos import TaskPriority, TaskStatus
 class TaskCreate(BaseModel):
     title: str
     description: Optional[str] = Field(default=None, max_length=500)
+    categoria: Optional[str] = Field(default=None, max_length=100)
     status: TaskStatus = TaskStatus.pending
     priority: TaskPriority = TaskPriority.medium
 
@@ -16,6 +17,7 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = Field(default=None, max_length=500)
+    categoria: Optional[str] = Field(default=None, max_length=100)
     status: Optional[TaskStatus] = None
     priority: Optional[TaskPriority] = None
 
@@ -24,6 +26,7 @@ class TaskResponse(BaseModel):
     id: int
     title: str
     description: Optional[str]
+    categoria: Optional[str]
     status: TaskStatus
     priority: TaskPriority
     created_at: datetime

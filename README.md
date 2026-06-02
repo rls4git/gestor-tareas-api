@@ -1,6 +1,6 @@
 # API de Gestión de Tareas
 
-API REST para gestionar el ciclo de vida de tareas, construida con **FastAPI** y **SQLAlchemy**. Permite crear, consultar, actualizar parcialmente y eliminar tareas. Cada tarea posee un identificador único, título, descripción opcional, estado (`pending`, `in_progress`, `done`) y fecha de creación asignada automáticamente.
+API REST para gestionar el ciclo de vida de tareas, construida con **FastAPI** y **SQLAlchemy**. Permite crear, consultar, actualizar parcialmente y eliminar tareas. Cada tarea posee un identificador único, título, descripción opcional, categoría opcional, estado (`pending`, `in_progress`, `done`) y fecha de creación asignada automáticamente.
 
 ---
 
@@ -95,6 +95,7 @@ curl -X GET http://127.0.0.1:8000/tasks/
     "id": 1,
     "title": "Revisar documentación",
     "description": "Revisar la documentación del proyecto",
+    "categoria": "documentación",
     "status": "pending",
     "created_at": "2025-01-15T10:30:00"
   }
@@ -124,6 +125,7 @@ curl -X GET http://127.0.0.1:8000/tasks/1
   "id": 1,
   "title": "Revisar documentación",
   "description": "Revisar la documentación del proyecto",
+  "categoria": "documentación",
   "status": "pending",
   "created_at": "2025-01-15T10:30:00"
 }
@@ -152,7 +154,8 @@ curl -X GET http://127.0.0.1:8000/tasks/1
 | Campo         | Tipo   | Obligatorio | Descripción |
 |---------------|--------|-------------|-------------|
 | `title`       | string | Sí          | Título de la tarea (mínimo 3 caracteres) |
-| `description` | string | No          | Descripción de la tarea |
+| `description` | string | No          | Descripción de la tarea (máximo 500 caracteres) |
+| `categoria`   | string | No          | Categoría de la tarea (máximo 100 caracteres) |
 | `status`      | string | No          | Estado inicial: `pending` (por defecto), `in_progress` o `done` |
 
 **Ejemplo de request:**
@@ -160,7 +163,7 @@ curl -X GET http://127.0.0.1:8000/tasks/1
 ```bash
 curl -X POST http://127.0.0.1:8000/tasks/ \
   -H "Content-Type: application/json" \
-  -d '{"title": "Implementar login", "description": "Añadir autenticación JWT"}'
+  -d '{"title": "Implementar login", "description": "Añadir autenticación JWT", "categoria": "backend"}'
 ```
 
 **Ejemplo de response** (`201 Created`):
@@ -170,6 +173,7 @@ curl -X POST http://127.0.0.1:8000/tasks/ \
   "id": 2,
   "title": "Implementar login",
   "description": "Añadir autenticación JWT",
+  "categoria": "backend",
   "status": "pending",
   "created_at": "2025-01-15T11:00:00"
 }
@@ -199,6 +203,7 @@ curl -X POST http://127.0.0.1:8000/tasks/ \
 |---------------|--------|-------------|
 | `title`       | string | Nuevo título de la tarea |
 | `description` | string | Nueva descripción |
+| `categoria`   | string | Nueva categoría |
 | `status`      | string | Nuevo estado: `pending`, `in_progress` o `done` |
 
 **Ejemplo de request:**
@@ -216,6 +221,7 @@ curl -X PATCH http://127.0.0.1:8000/tasks/2 \
   "id": 2,
   "title": "Implementar login",
   "description": "Añadir autenticación JWT",
+  "categoria": "backend",
   "status": "in_progress",
   "created_at": "2025-01-15T11:00:00"
 }
