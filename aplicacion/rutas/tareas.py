@@ -31,7 +31,7 @@ def get_task_or_404(task_id: int, db: Session = Depends(get_db)) -> Task:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid task id")
     task = db.query(Task).filter(Task.id == task_id).first()
     if task is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="404 Task not found")
     return task
 
 
