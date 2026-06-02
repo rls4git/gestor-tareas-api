@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from aplicacion.modelos import TaskStatus
+from aplicacion.modelos import TaskPriority, TaskStatus
 
 
 class TaskCreate(BaseModel):
@@ -11,6 +11,7 @@ class TaskCreate(BaseModel):
     description: Optional[str] = Field(default=None, max_length=500)
     categoria: Optional[str] = Field(default=None, max_length=100)
     status: TaskStatus = TaskStatus.pending
+    priority: TaskPriority = TaskPriority.medium
 
 
 class TaskUpdate(BaseModel):
@@ -18,6 +19,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = Field(default=None, max_length=500)
     categoria: Optional[str] = Field(default=None, max_length=100)
     status: Optional[TaskStatus] = None
+    priority: Optional[TaskPriority] = None
 
 
 class TaskResponse(BaseModel):
@@ -26,6 +28,7 @@ class TaskResponse(BaseModel):
     description: Optional[str]
     categoria: Optional[str]
     status: TaskStatus
+    priority: TaskPriority
     created_at: datetime
 
     model_config = {"from_attributes": True}
