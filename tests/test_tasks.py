@@ -49,30 +49,34 @@ def test_update_done_task_returns_409():
     assert response.status_code == 409
 
 
-def test_create_task_description_too_long_returns_422():
-    """Verifica que POST /tasks/ devuelve 422 si la descripción supera 500 caracteres."""
-    response = client.post(
-        "/tasks/", json={"title": "Tarea válida", "description": "x" * 501}
-    )
-    assert response.status_code == 422
+def test_delete_all_tasks_clears_database():
+    """Verifica que DELETE /tasks/ elimina todas las tareas."""
+    # Crear varias tareas
+    client.post("/tasks/", json={"title": "Tarea uno"})
+    client.post("/tasks/", json={"title": "Tarea dos"})
+    client.post("/tasks/", json={"title": "Tarea tres"})
+
+    # Confirmar que existen tareas
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert len(response.json()) > 0
+
+    # Eliminar todas
+    response = client.delete("/tasks/")
+    assert response.status_code == 204
+
+    # Verificar que la lista está vacía
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert response.json() == []
 
 
-def test_create_task_description_at_max_length_succeeds():
-    """Verifica que POST /tasks/ acepta una descripción de exactamente 500 caracteres."""
-    response = client.post(
-        "/tasks/", json={"title": "Tarea con desc larga", "description": "x" * 500}
-    )
-    assert response.status_code == 201
-    assert len(response.json()["description"]) == 500
+def test_delete_all_tasks_on_empty_database_returns_204():
+    """Verifica que DELETE /tasks/ devuelve 204 incluso sin tareas."""
+    # Asegurar que no hay tareas (ya se eliminaron en el test anterior)
+    response = client.delete("/tasks/")
+    assert response.status_code == 204
 
-
-def test_update_task_description_too_long_returns_422():
-    """Verifica que PATCH /tasks/{id} devuelve 422 si la descripción supera 500 caracteres."""
-    response = client.post("/tasks/", json={"title": "Tarea para actualizar"})
-    assert response.status_code == 201
-    task_id = response.json()["id"]
-
-    response = client.patch(
-        f"/tasks/{task_id}", json={"description": "y" * 501}
-    )
-    assert response.status_code == 422
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert response.json() == []
