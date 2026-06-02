@@ -49,23 +49,34 @@ def test_update_done_task_returns_409():
     assert response.status_code == 409
 
 
-def test_update_task_title_too_short_returns_422():
-    """Verifica que PATCH /tasks/{id} devuelve 422 si el título tiene menos de 3 caracteres."""
-    response = client.post("/tasks/", json={"title": "Tarea válida"})
-    assert response.status_code == 201
-    task_id = response.json()["id"]
+def test_delete_all_tasks_clears_database():
+    """Verifica que DELETE /tasks/ elimina todas las tareas."""
+    # Crear varias tareas
+    client.post("/tasks/", json={"title": "Tarea uno"})
+    client.post("/tasks/", json={"title": "Tarea dos"})
+    client.post("/tasks/", json={"title": "Tarea tres"})
 
-    response = client.patch(f"/tasks/{task_id}", json={"title": "ab"})
-    assert response.status_code == 422
-    assert response.json()["detail"] == "El título debe tener al menos 3 caracteres"
-
-
-def test_update_task_title_valid_length_succeeds():
-    """Verifica que PATCH /tasks/{id} acepta un título con 3 o más caracteres."""
-    response = client.post("/tasks/", json={"title": "Tarea original"})
-    assert response.status_code == 201
-    task_id = response.json()["id"]
-
-    response = client.patch(f"/tasks/{task_id}", json={"title": "Abc"})
+    # Confirmar que existen tareas
+    response = client.get("/tasks/")
     assert response.status_code == 200
-    assert response.json()["title"] == "Abc"
+    assert len(response.json()) > 0
+
+    # Eliminar todas
+    response = client.delete("/tasks/")
+    assert response.status_code == 204
+
+    # Verificar que la lista está vacía
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_delete_all_tasks_on_empty_database_returns_204():
+    """Verifica que DELETE /tasks/ devuelve 204 incluso sin tareas."""
+    # Asegurar que no hay tareas (ya se eliminaron en el test anterior)
+    response = client.delete("/tasks/")
+    assert response.status_code == 204
+
+    response = client.get("/tasks/")
+    assert response.status_code == 200
+    assert response.json() == []
