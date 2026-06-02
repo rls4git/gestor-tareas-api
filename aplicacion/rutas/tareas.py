@@ -80,11 +80,7 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
     Raises:
         HTTPException: 422 si el título tiene menos de 3 caracteres.
     """
-    if len(payload.title) < 3:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="El título debe tener al menos 3 caracteres",
-        )
+    # Bug: no valida que el título tenga al menos 3 caracteres antes de persistir
     task = Task(**payload.model_dump())
     db.add(task)
     db.commit()
@@ -116,12 +112,8 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
-    if payload.title is not None and len(payload.title) < 3:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="El título debe tener al menos 3 caracteres",
-        )
-
+    # Bug: comprueba el estado del payload en lugar del estado actual de la tarea;
+    # una tarea ya completada puede modificarse sin ningún error
     if payload.status == TaskStatus.done:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
