@@ -39,14 +39,18 @@ def test_create_task_title_too_short_returns_422():
 
 
 def test_update_done_task_returns_409():
+    """Verifica que no se puede modificar una tarea ya completada."""
     response = client.post("/tasks/", json={"title": "Tarea para completar"})
     assert response.status_code == 201
     task_id = response.json()["id"]
 
-    client.patch(f"/tasks/{task_id}", json={"status": "done"})
+    response = client.patch(f"/tasks/{task_id}", json={"status": "done"})
+    assert response.status_code == 200
+    assert response.json()["status"] == "done"
 
     response = client.patch(f"/tasks/{task_id}", json={"title": "Nuevo título"})
     assert response.status_code == 409
+    assert response.json()["detail"] == "No se puede modificar una tarea ya completada"
 
 
 def test_delete_all_tasks_clears_database():

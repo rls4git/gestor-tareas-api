@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from aplicacion.base_de_datos import get_db
@@ -93,39 +93,42 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
 
 
 @router.patch("/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)):
+def update_task(
+    payload: TaskUpdate,
+    task: Task = Depends(get_task_or_404),
+    db: Session = Depends(get_db),
+):
     """Actualiza parcialmente una tarea existente.
 
     Solo modifica los campos incluidos en el cuerpo de la petición,
     incluyendo la prioridad (low, medium, high) si se proporciona.
+    No permite modificar tareas que ya estén completadas.
 
     Args:
-        task_id (int): Identificador único de la tarea a actualizar.
         payload (TaskUpdate): Campos a modificar (título, descripción,
             estado, prioridad).
+        task (Task): Tarea resuelta por la dependencia get_task_or_404.
         db (Session): Sesión de base de datos inyectada por FastAPI.
 
     Returns:
         TaskResponse: La tarea con los campos actualizados.
 
     Raises:
+        HTTPException: 400 si el id es inválido.
         HTTPException: 404 si no existe una tarea con el id indicado.
-        HTTPException: 400 si se intenta establecer el estado a done.
+        HTTPException: 409 si la tarea ya está completada.
+        HTTPException: 422 si el título tiene menos de 3 caracteres.
     """
-    task = db.query(Task).filter(Task.id == task_id).first()
-    if not task:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    if task.status == TaskStatus.done:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede modificar una tarea ya completada",
+        )
 
     if payload.title is not None and len(payload.title) < 3:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="El título debe tener al menos 3 caracteres",
-        )
-
-    if payload.status == TaskStatus.done:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No se puede establecer el estado a done directamente",
         )
 
     for field, value in payload.model_dump(exclude_unset=True).items():
