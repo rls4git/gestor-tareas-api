@@ -96,6 +96,7 @@ curl -X GET http://127.0.0.1:8000/tasks/
     "title": "Revisar documentación",
     "description": "Revisar la documentación del proyecto",
     "status": "pending",
+    "priority": "medium",
     "created_at": "2025-01-15T10:30:00"
   }
 ]
@@ -125,6 +126,7 @@ curl -X GET http://127.0.0.1:8000/tasks/1
   "title": "Revisar documentación",
   "description": "Revisar la documentación del proyecto",
   "status": "pending",
+  "priority": "medium",
   "created_at": "2025-01-15T10:30:00"
 }
 ```
@@ -133,7 +135,7 @@ curl -X GET http://127.0.0.1:8000/tasks/1
 
 ```json
 {
-  "detail": "Task not found"
+  "detail": "Tarea no encontrada"
 }
 ```
 
@@ -152,8 +154,9 @@ curl -X GET http://127.0.0.1:8000/tasks/1
 | Campo         | Tipo   | Obligatorio | Descripción |
 |---------------|--------|-------------|-------------|
 | `title`       | string | Sí          | Título de la tarea (mínimo 3 caracteres) |
-| `description` | string | No          | Descripción de la tarea |
+| `description` | string | No          | Descripción de la tarea (máximo 500 caracteres) |
 | `status`      | string | No          | Estado inicial: `pending` (por defecto), `in_progress` o `done` |
+| `priority`    | string | No          | Prioridad: `low`, `medium` (por defecto) o `high` |
 
 **Ejemplo de request:**
 
@@ -171,6 +174,7 @@ curl -X POST http://127.0.0.1:8000/tasks/ \
   "title": "Implementar login",
   "description": "Añadir autenticación JWT",
   "status": "pending",
+  "priority": "medium",
   "created_at": "2025-01-15T11:00:00"
 }
 ```
@@ -197,9 +201,10 @@ curl -X POST http://127.0.0.1:8000/tasks/ \
 
 | Campo         | Tipo   | Descripción |
 |---------------|--------|-------------|
-| `title`       | string | Nuevo título de la tarea |
-| `description` | string | Nueva descripción |
+| `title`       | string | Nuevo título de la tarea (mínimo 3 caracteres) |
+| `description` | string | Nueva descripción (máximo 500 caracteres) |
 | `status`      | string | Nuevo estado: `pending`, `in_progress` o `done` |
+| `priority`    | string | Nueva prioridad: `low`, `medium` o `high` |
 
 **Ejemplo de request:**
 
@@ -217,6 +222,7 @@ curl -X PATCH http://127.0.0.1:8000/tasks/2 \
   "title": "Implementar login",
   "description": "Añadir autenticación JWT",
   "status": "in_progress",
+  "priority": "medium",
   "created_at": "2025-01-15T11:00:00"
 }
 ```
@@ -225,7 +231,15 @@ curl -X PATCH http://127.0.0.1:8000/tasks/2 \
 
 ```json
 {
-  "detail": "Task not found"
+  "detail": "Tarea no encontrada"
+}
+```
+
+**Respuesta de error** (`409 Conflict`):
+
+```json
+{
+  "detail": "No se puede modificar una tarea ya completada"
 }
 ```
 
@@ -253,7 +267,7 @@ Sin cuerpo de respuesta.
 
 ```json
 {
-  "detail": "Task not found"
+  "detail": "Tarea no encontrada"
 }
 ```
 
