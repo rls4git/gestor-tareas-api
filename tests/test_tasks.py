@@ -140,3 +140,56 @@ def test_get_task_includes_priority():
     response = client.get(f"/tasks/{task_id}")
     assert response.status_code == 200
     assert response.json()["priority"] == "low"
+
+
+# --- Tests de regresión: validación de título con espacios en blanco ---
+
+
+def test_create_task_whitespace_only_title_returns_422():
+    """Verifica que un título de solo espacios se rechaza con 422."""
+    response = client.post("/tasks/", json={"title": "   "})
+    assert response.status_code == 422
+    assert response.json()["detail"] == "El título debe tener al menos 3 caracteres"
+
+
+def test_create_task_padded_short_title_returns_422():
+    """Verifica que un título con espacios alrededor y menos de 3 caracteres útiles se rechaza."""
+    response = client.post("/tasks/", json={"title": " ab "})
+    assert response.status_code == 422
+    assert response.json()["detail"] == "El título debe tener al menos 3 caracteres"
+
+
+def test_update_task_whitespace_only_title_returns_422():
+    """Verifica que actualizar el título a solo espacios se rechaza con 422."""
+    response = client.post("/tasks/", json={"title": "Tarea válida"})
+    task_id = response.json()["id"]
+
+    response = client.patch(f"/tasks/{task_id}", json={"title": "   "})
+    assert response.status_code == 422
+    assert response.json()["detail"] == "El título debe tener al menos 3 caracteres"
+
+
+# --- Tests de regresión: bloqueo de actualización en tareas completadas ---
+
+
+def test_update_done_task_returns_409_with_detail():
+    """Verifica código 409 y mensaje detail al actualizar una tarea completada."""
+    response = client.post("/tasks/", json={"title": "Tarea done"})
+    task_id = response.json()["id"]
+
+    response = client.patch(f"/tasks/{task_id}", json={"status": "done"})
+    assert response.status_code == 200
+
+    response = client.patch(f"/tasks/{task_id}", json={"title": "Nuevo título"})
+    assert response.status_code == 409
+    assert response.json()["detail"] == "No se puede modificar una tarea completada"
+
+
+def test_update_task_can_set_status_to_done():
+    """Verifica que se puede establecer el estado a done correctamente."""
+    response = client.post("/tasks/", json={"title": "Tarea a completar"})
+    task_id = response.json()["id"]
+
+    response = client.patch(f"/tasks/{task_id}", json={"status": "done"})
+    assert response.status_code == 200
+    assert response.json()["status"] == "done"
