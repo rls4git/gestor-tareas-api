@@ -36,16 +36,27 @@ def get_task_or_404(task_id: int, db: Session = Depends(get_db)) -> Task:
 
 
 @router.get("/", response_model=List[TaskResponse])
-def list_tasks(db: Session = Depends(get_db)):
-    """Obtiene la lista completa de tareas almacenadas.
+def list_tasks(
+    db: Session = Depends(get_db),
+    status_filter: TaskStatus | None = Query(default=None, alias="status"),
+    limit: int = Query(default=10, ge=1),
+):
+    """Devuelve tareas con filtro opcional por estado y límite de resultados.
 
     Args:
         db (Session): Sesión de base de datos inyectada por FastAPI.
+        status_filter (TaskStatus | None): Estado por el que filtrar.
+        limit (int): Número máximo de tareas a devolver.
 
     Returns:
-        List[TaskResponse]: Lista con todas las tareas existentes.
+        List[TaskResponse]: Lista de tareas filtradas.
     """
-    return db.query(Task).all()
+    query = db.query(Task)
+    # Bug: usa != en lugar de ==; filtra las tareas que NO tienen el estado solicitado
+    if status_filter:
+        query = query.filter(Task.status != status_filter)
+    # Bug: limit se recibe pero nunca se aplica a la query
+    return query.all()
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
