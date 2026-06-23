@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from aplicacion.base_de_datos import get_db
-from aplicacion.esquemas import TaskCreate, TaskResponse, TaskUpdate
+from aplicacion.esquemas import TaskCountResponse, TaskCreate, TaskResponse, TaskUpdate
 from aplicacion.modelos import Task, TaskStatus
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -46,6 +46,20 @@ def list_tasks(db: Session = Depends(get_db)):
         List[TaskResponse]: Lista con todas las tareas existentes.
     """
     return db.query(Task).all()
+
+
+@router.get("/count", response_model=TaskCountResponse)
+def count_tasks(db: Session = Depends(get_db)):
+    """Devuelve el número total de tareas almacenadas.
+
+    Args:
+        db (Session): Sesión de base de datos inyectada por FastAPI.
+
+    Returns:
+        TaskCountResponse: Objeto con el campo total.
+    """
+    total = db.query(Task).count()
+    return TaskCountResponse(total=total)
 
 
 @router.get("/{task_id}", response_model=TaskResponse)

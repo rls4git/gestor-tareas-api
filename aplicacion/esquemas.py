@@ -20,6 +20,10 @@ class TaskUpdate(BaseModel):
     priority: Optional[TaskPriority] = None
 
 
+class TaskCountResponse(BaseModel):
+    total: int
+
+
 class TaskResponse(BaseModel):
     id: int
     title: str
