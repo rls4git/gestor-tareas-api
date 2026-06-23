@@ -140,3 +140,26 @@ def test_get_task_includes_priority():
     response = client.get(f"/tasks/{task_id}")
     assert response.status_code == 200
     assert response.json()["priority"] == "low"
+
+
+# --- Tests del endpoint /tasks/count ---
+
+
+def test_count_tasks_on_empty_database():
+    """Verifica que GET /tasks/count devuelve 0 cuando no hay tareas."""
+    client.delete("/tasks/")
+    response = client.get("/tasks/count")
+    assert response.status_code == 200
+    assert response.json() == {"total": 0}
+
+
+def test_count_tasks_returns_correct_total():
+    """Verifica que GET /tasks/count refleja el número real de tareas."""
+    client.delete("/tasks/")
+    client.post("/tasks/", json={"title": "Tarea uno"})
+    client.post("/tasks/", json={"title": "Tarea dos"})
+    client.post("/tasks/", json={"title": "Tarea tres"})
+
+    response = client.get("/tasks/count")
+    assert response.status_code == 200
+    assert response.json() == {"total": 3}
