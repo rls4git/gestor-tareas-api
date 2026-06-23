@@ -231,7 +231,54 @@ curl -X PATCH http://127.0.0.1:8000/tasks/2 \
 
 ---
 
-### 5. Eliminar una tarea
+### 5. Completar una tarea
+
+| Campo       | Valor                          |
+|-------------|--------------------------------|
+| **Método**  | `PATCH`                        |
+| **Ruta**    | `/tasks/{task_id}/complete`    |
+| **Parámetros** | `task_id` (int, ruta) — Identificador de la tarea |
+
+Marca una tarea como `done` sin necesidad de enviar el body completo.
+
+**Ejemplo de request:**
+
+```bash
+curl -X PATCH http://127.0.0.1:8000/tasks/2/complete
+```
+
+**Ejemplo de response** (`200 OK`):
+
+```json
+{
+  "id": 2,
+  "title": "Implementar login",
+  "description": "Añadir autenticación JWT",
+  "status": "done",
+  "priority": "medium",
+  "created_at": "2025-01-15T11:00:00"
+}
+```
+
+**Respuesta de error** (`404 Not Found`):
+
+```json
+{
+  "detail": "Tarea no encontrada"
+}
+```
+
+**Respuesta de error** (`409 Conflict`):
+
+```json
+{
+  "detail": "La tarea ya está completada"
+}
+```
+
+---
+
+### 6. Eliminar una tarea
 
 | Campo       | Valor                          |
 |-------------|--------------------------------|

@@ -135,6 +135,36 @@ def update_task(task_id: int, payload: TaskUpdate, db: Session = Depends(get_db)
     return task
 
 
+@router.patch("/{task_id}/complete", response_model=TaskResponse)
+def complete_task(
+    task: Task = Depends(get_task_or_404),
+    db: Session = Depends(get_db),
+):
+    """Marca una tarea como done sin necesidad de enviar el body completo.
+
+    Args:
+        task (Task): Tarea resuelta por la dependencia get_task_or_404.
+        db (Session): Sesión de base de datos inyectada por FastAPI.
+
+    Returns:
+        TaskResponse: La tarea con el estado actualizado a done.
+
+    Raises:
+        HTTPException: 400 si el id es inválido.
+        HTTPException: 404 si no existe una tarea con el id indicado.
+        HTTPException: 409 si la tarea ya se encuentra en estado done.
+    """
+    if task.status == TaskStatus.done:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="La tarea ya está completada",
+        )
+    task.status = TaskStatus.done
+    db.commit()
+    db.refresh(task)
+    return task
+
+
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all_tasks(db: Session = Depends(get_db)):
     """Elimina todas las tareas de la base de datos.
