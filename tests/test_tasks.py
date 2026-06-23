@@ -140,3 +140,37 @@ def test_get_task_includes_priority():
     response = client.get(f"/tasks/{task_id}")
     assert response.status_code == 200
     assert response.json()["priority"] == "low"
+
+
+# --- Tests de PATCH /tasks/{id}/complete ---
+
+
+def test_complete_task_marks_as_done():
+    """Verifica que PATCH /tasks/{id}/complete marca la tarea como done."""
+    response = client.post("/tasks/", json={"title": "Tarea por completar"})
+    assert response.status_code == 201
+    task_id = response.json()["id"]
+
+    response = client.patch(f"/tasks/{task_id}/complete")
+    assert response.status_code == 200
+    assert response.json()["status"] == "done"
+    assert response.json()["id"] == task_id
+
+
+def test_complete_task_already_done_returns_409():
+    """Verifica que completar una tarea ya completada devuelve 409."""
+    response = client.post("/tasks/", json={"title": "Tarea duplicada"})
+    task_id = response.json()["id"]
+
+    client.patch(f"/tasks/{task_id}/complete")
+
+    response = client.patch(f"/tasks/{task_id}/complete")
+    assert response.status_code == 409
+    assert response.json()["detail"] == "La tarea ya está completada"
+
+
+def test_complete_task_not_found_returns_404():
+    """Verifica que completar una tarea inexistente devuelve 404."""
+    response = client.patch("/tasks/999999/complete")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Tarea no encontrada"
