@@ -33,6 +33,14 @@ def teardown_module():
     Base.metadata.drop_all(bind=engine)
 
 
+def test_create_task_returns_201():
+    response = client.post(
+        '/tasks/',
+        json={'title': 'Test'}
+    )
+    assert response.status_code == 201
+
+
 def test_create_task_title_too_short_returns_422():
     response = client.post("/tasks/", json={"title": "ab"})
     assert response.status_code == 422
